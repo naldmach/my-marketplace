@@ -1,4 +1,4 @@
-import { mockListings } from "@/components/MarketplaceGrid";
+import { supabase } from "@/lib/supabaseClient";
 
 export default async function ListingDetailPage({
   params,
@@ -6,18 +6,24 @@ export default async function ListingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const listing = mockListings.find((l) => l.id === Number(id));
-  if (!listing) {
+  const { data: listing, error } = await supabase
+    .from("listings")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !listing) {
     return <div className="p-8 text-center text-xl">Listing not found.</div>;
   }
+
   return (
     <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-50 min-h-screen">
       {/* Left: Large Image Card */}
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-2xl aspect-square bg-white rounded-lg border border-border flex items-center justify-center shadow-sm overflow-hidden">
-          {listing.image ? (
+          {listing.image_url ? (
             <img
-              src={listing.image}
+              src={listing.image_url}
               alt={listing.title}
               className="w-full h-full object-cover rounded"
             />
@@ -36,7 +42,7 @@ export default async function ListingDetailPage({
           in {listing.location}
         </div>
         <div className="font-bold text-sm mb-1">Seller Information</div>
-        <div className="text-sm mb-4">{listing.seller}</div>
+        <div className="text-sm mb-4">{listing.seller_email}</div>
         <div className="font-semibold mb-2">Send seller a message</div>
         <textarea
           className="w-full border border-border rounded p-2 mb-2 text-sm"
