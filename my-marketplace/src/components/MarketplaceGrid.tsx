@@ -1,29 +1,56 @@
-import React from "react";
+"use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
-export const mockListings = Array.from({ length: 16 }).map((_, i) => ({
-  id: i + 1,
-  title: "Lorem ipsum dolor sit",
-  price: i === 0 ? "$99" : "$2,300",
-  location: "Palo Alto, CA",
-  description: "This is a sample description for the item.",
-  seller: i % 2 === 0 ? "Wei Gu" : "Greg Wientjes",
-  image: "https://placehold.co/400x300/60a5fa/fff?text=Photo",
-}));
+type Listing = {
+  id: string;
+  title: string;
+  price: string;
+  location: string;
+  image_url?: string;
+};
 
 const MarketplaceGrid: React.FC = () => {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchListings() {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("listings")
+        .select("id, title, price, location, image_url")
+        .order("created_at", { ascending: false });
+      if (error) {
+        setError(error.message);
+      } else {
+        setListings(data || []);
+      }
+      setLoading(false);
+    }
+    fetchListings();
+  }, []);
+
+  if (loading)
+    return <div className="p-8 text-center">Loading listings...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+  if (!listings.length)
+    return <div className="p-8 text-center">No listings found.</div>;
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-      {mockListings.map((listing) => (
+      {listings.map((listing) => (
         <Link
           key={listing.id}
           href={`/listing/${listing.id}`}
           className="bg-white rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden"
         >
           <div className="w-full aspect-[4/3] bg-blue-100 flex items-center justify-center border-b border-border">
-            {listing.image ? (
+            {listing.image_url ? (
               <img
-                src={listing.image}
+                src={listing.image_url}
                 alt={listing.title}
                 className="w-full h-full object-cover"
               />
