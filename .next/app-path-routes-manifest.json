@@ -1,0 +1,18 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/create/home/page": "/create/home",
+  "/create-listing/page": "/create-listing",
+  "/category/[category]/page": "/category/[category]",
+  "/create/multiple/page": "/create/multiple",
+  "/create/vehicle/page": "/create/vehicle",
+  "/listing/[id]/page": "/listing/[id]",
+  "/page": "/",
+  "/create/item/page": "/create/item",
+  "/notifications/page": "/notifications",
+  "/profile/page": "/profile",
+  "/create/page": "/create",
+  "/messages/page": "/messages",
+  "/seller-help/page": "/seller-help",
+  "/your-listings/page": "/your-listings"
+}
