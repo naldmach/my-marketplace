@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd my-marketplace && npm run build",
+  "installCommand": "cd my-marketplace && npm install",
+  "outputDirectory": "my-marketplace/.next",
+  "rootDirectory": "my-marketplace"
+}
