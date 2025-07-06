@@ -6,10 +6,13 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
+// If User type import fails, define a minimal fallback type:
+// type User = { email: string | null };
+import type { User } from "@supabase/supabase-js";
 
 interface AuthContextType {
-  user: any;
+  user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -21,7 +24,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

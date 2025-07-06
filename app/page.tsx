@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 import MarketplaceGrid from "../components/MarketplaceGrid";
 import Link from "next/link";
 import { Search, TrendingUp, Star } from "lucide-react";

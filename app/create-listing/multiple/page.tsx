@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../components/AuthProvider";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../../../lib/supabaseClient";
 
 export default function CreateMultiplePage() {
   const { user, loading } = useAuth();
@@ -52,7 +52,7 @@ export default function CreateMultiplePage() {
       const fileName = `${Date.now()}_${Math.random()
         .toString(36)
         .substring(2, 8)}.${fileExt}`;
-      const { data, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("listing-images")
         .upload(fileName, imageFile);
       if (uploadError) {
@@ -64,6 +64,11 @@ export default function CreateMultiplePage() {
         .from("listing-images")
         .getPublicUrl(fileName);
       image_url = publicUrlData.publicUrl;
+    }
+    if (!user) {
+      setError("You must be logged in to create listings.");
+      setSubmitting(false);
+      return;
     }
     const insertData = lines.map((line) => ({
       title: line,

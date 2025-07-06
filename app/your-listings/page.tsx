@@ -2,12 +2,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/AuthProvider";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
+
+interface Listing {
+  id: string;
+  title: string;
+  price?: string;
+  image_url?: string;
+  created_at?: string;
+}
 
 export default function YourListingsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [listings, setListings] = useState<any[]>([]);
+  const [listings, setListings] = useState<Listing[]>([]);
   const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
