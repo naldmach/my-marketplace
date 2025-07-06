@@ -63,7 +63,13 @@ const MarketplaceGrid: React.FC = () => {
             )}
           </div>
           <div className="p-4 flex flex-col gap-1">
-            <div className="font-bold text-lg">{listing.price}</div>
+            <div className="font-bold text-lg">
+              {listing.price
+                ? `$${Number(
+                    listing.price.toString().replace(/,/g, "")
+                  ).toLocaleString()}`
+                : ""}
+            </div>
             <div className="text-sm font-semibold">{listing.title}</div>
             <div className="text-xs text-muted-foreground">
               {listing.location}
