@@ -39,6 +39,7 @@ npm run dev
 - [SETUP.md](./SETUP.md) — Full setup instructions
 - [FEATURES.md](./FEATURES.md) — Complete feature list
 - [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) — Developer guide and architecture
+- [UPGRADE_GUIDE.md](./UPGRADE_GUIDE.md) — Future upgrades and best practices
 
 ---
 
