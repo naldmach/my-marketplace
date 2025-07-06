@@ -22,7 +22,7 @@ export default function YourListingsPage() {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editFields, setEditFields] = useState<any>({});
+  const [editFields, setEditFields] = useState<Partial<Listing>>({});
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
@@ -77,7 +77,7 @@ export default function YourListingsPage() {
   };
 
   const startEdit = () => {
-    setEditFields(selectedListing);
+    if (selectedListing) setEditFields(selectedListing);
     setEditMode(true);
     setEditError(null);
   };
