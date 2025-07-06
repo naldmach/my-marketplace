@@ -14,6 +14,16 @@ export default function CreateItemPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const categories = [
+    "Electronics",
+    "Fashion",
+    "Home & Garden",
+    "Sports",
+    "Vehicles",
+    "Books",
+    "Other",
+  ];
+  const [category, setCategory] = useState(categories[0]);
 
   // Redirect to login if not logged in
   if (!loading && !user) {
@@ -63,6 +73,7 @@ export default function CreateItemPage() {
         description,
         image_url,
         seller_email: user.email,
+        category,
       },
     ]);
     setSubmitting(false);
@@ -109,6 +120,18 @@ export default function CreateItemPage() {
             onChange={(e) => setDescription(e.target.value)}
             required
           />
+          <select
+            className="border border-border rounded p-2 text-sm"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
           {error && <div className="text-red-600 text-sm">{error}</div>}
           <button
             type="submit"

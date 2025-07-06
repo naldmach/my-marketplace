@@ -15,6 +15,16 @@ export default function CreateVehiclePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const categories = [
+    "Vehicles",
+    "Electronics",
+    "Fashion",
+    "Home & Garden",
+    "Sports",
+    "Books",
+    "Other",
+  ];
+  const [category, setCategory] = useState(categories[0]);
 
   // Redirect to login if not logged in
   if (!loading && !user) {
@@ -65,6 +75,7 @@ export default function CreateVehiclePage() {
         description,
         image_url,
         seller_email: user.email,
+        category,
       },
     ]);
     setSubmitting(false);
@@ -111,6 +122,18 @@ export default function CreateVehiclePage() {
             onChange={(e) => setPrice(e.target.value)}
             required
           />
+          <select
+            className="border border-border rounded p-2 text-sm"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
           <textarea
             placeholder="Description"
             className="border border-border rounded p-2 text-sm"
