@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { label: "Choose listing type", href: "/create" },
+  { label: "Choose listing type", href: "/create-listing" },
   { label: "Your listings", href: "/your-listings" },
   { label: "Seller help", href: "/seller-help" },
 ];

@@ -1,57 +1,52 @@
-import React from "react";
+import Link from "next/link";
 
-export default function CreateListingPage() {
+const listingTypes = [
+  {
+    title: "Item for sale",
+    description: "Lorem ipsum dolor sit",
+    href: "/create-listing/item",
+  },
+  {
+    title: "Create multiple listings",
+    description: "Lorem ipsum dolor sit",
+    href: "/create-listing/multiple",
+  },
+  {
+    title: "Vehicle for sale",
+    description: "Lorem ipsum dolor sit",
+    href: "/create-listing/vehicle",
+  },
+  {
+    title: "Home for sale or rent",
+    description: "Lorem ipsum dolor sit",
+    href: "/create-listing/home",
+  },
+];
+
+export default function ChooseListingTypePage() {
   return (
-    <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-50 min-h-screen">
-      {/* Left: Form Card */}
-      <div className="w-full max-w-sm bg-white rounded-lg border border-border p-6 flex flex-col gap-4 shadow-sm">
-        <div className="w-full h-40 bg-gray-100 rounded border border-dashed border-gray-300 flex flex-col items-center justify-center mb-4">
-          <span className="text-3xl mb-2">⬆️</span>
-          <span className="text-gray-500">Add photos</span>
-        </div>
-        <input
-          type="text"
-          placeholder="Title"
-          className="border border-border rounded p-2 text-sm"
-        />
-        <input
-          type="text"
-          placeholder="Price"
-          className="border border-border rounded p-2 text-sm"
-        />
-        <input
-          type="text"
-          placeholder="Email"
-          className="border border-border rounded p-2 text-sm"
-        />
-        <textarea
-          placeholder="Description"
-          className="border border-border rounded p-2 text-sm"
-          rows={3}
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold w-full mt-2"
-        >
-          Next
-        </button>
-      </div>
-      {/* Right: Preview Card */}
-      <div className="flex-1 flex flex-col items-center">
-        <div className="w-full max-w-2xl bg-white rounded-lg border border-border p-6 flex flex-col gap-4 shadow-sm">
-          <div className="w-full h-64 bg-blue-100 rounded mb-4 flex items-center justify-center border border-blue-200">
-            <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#60a5fa_0_2px,transparent_2px,transparent_8px)] rounded" />
-          </div>
-          <div className="font-bold text-xl mb-1">Title</div>
-          <div className="text-lg font-semibold mb-1">Price</div>
-          <div className="text-xs text-muted-foreground mb-2">
-            Listed 1 hour ago
-            <br />
-            in Palo Alto, CA
-          </div>
-          <div className="font-bold text-sm mb-1">Seller Information</div>
-          <div className="text-sm">Greg Wientjes</div>
-        </div>
+    <div className="flex flex-col items-center w-full min-h-screen bg-gray-50">
+      <h1 className="text-2xl font-bold mt-8 mb-10 text-center">
+        Choose listing type
+      </h1>
+      <div className="flex flex-row gap-6 justify-center w-full max-w-5xl">
+        {listingTypes.map((type) => (
+          <Link
+            key={type.title}
+            href={type.href}
+            className="flex flex-col items-center bg-white rounded-lg border border-border shadow-sm px-8 py-8 w-64 hover:shadow-md transition-shadow cursor-pointer"
+          >
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <div className="w-10 h-10 bg-[repeating-linear-gradient(135deg,#d1d5db_0_2px,transparent_2px,transparent_8px)] rounded-full" />
+            </div>
+            <div className="font-bold text-center mb-1 text-lg">
+              {type.title}
+            </div>
+            <div className="text-xs text-muted-foreground text-center">
+              {type.description}
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );
