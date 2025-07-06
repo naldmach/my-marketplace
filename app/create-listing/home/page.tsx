@@ -49,7 +49,7 @@ export default function CreateHomePage() {
 
   // Custom handler for price input with automatic commas
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let raw = e.target.value.replace(/[^\d]/g, "");
+    const raw = e.target.value.replace(/[^\d]/g, "");
     const formatted = formatWithCommas(raw);
     setPrice(formatted);
   };

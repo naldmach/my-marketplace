@@ -99,9 +99,7 @@ export default function YourListingsPage() {
 
   // Custom handler for price input with automatic commas
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove all non-digit characters except commas
-    let raw = e.target.value.replace(/[^\d]/g, "");
-    // Format with commas for display
+    const raw = e.target.value.replace(/[^\d]/g, "");
     const formatted = formatWithCommas(raw);
     setEditFields({ ...editFields, price: formatted });
   };
