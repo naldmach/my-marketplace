@@ -3,22 +3,23 @@ import Link from "next/link";
 const listingTypes = [
   {
     title: "Item for sale",
-    description: "Lorem ipsum dolor sit",
+    description:
+      "Sell a single item such as electronics, clothing, or accessories.",
     href: "/create-listing/item",
   },
   {
     title: "Create multiple listings",
-    description: "Lorem ipsum dolor sit",
+    description: "Quickly add several items at once, perfect for bulk sellers.",
     href: "/create-listing/multiple",
   },
   {
     title: "Vehicle for sale",
-    description: "Lorem ipsum dolor sit",
+    description: "List a car, motorcycle, or other vehicle for sale.",
     href: "/create-listing/vehicle",
   },
   {
     title: "Home for sale or rent",
-    description: "Lorem ipsum dolor sit",
+    description: "Post a home, apartment, or property for sale or rent.",
     href: "/create-listing/home",
   },
 ];
