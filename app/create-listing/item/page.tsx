@@ -39,6 +39,20 @@ export default function CreateItemPage() {
     }
   }
 
+  // Utility to format numbers with commas
+  function formatWithCommas(value: string) {
+    const raw = value.replace(/,/g, "");
+    if (!raw) return "";
+    return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  // Custom handler for price input with automatic commas
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/[^\d]/g, "");
+    const formatted = formatWithCommas(raw);
+    setPrice(formatted);
+  };
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -71,7 +85,7 @@ export default function CreateItemPage() {
     }
 
     // Convert price to number for SQL DECIMAL field
-    const priceNumber = parseFloat(price);
+    const priceNumber = parseFloat(price.replace(/,/g, ""));
     if (isNaN(priceNumber)) {
       setError("Please enter a valid price.");
       setSubmitting(false);
@@ -122,7 +136,7 @@ export default function CreateItemPage() {
             placeholder="Price"
             className="border border-border rounded p-2 text-sm"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={handlePriceChange}
             required
           />
           <input

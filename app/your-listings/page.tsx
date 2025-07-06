@@ -90,16 +90,34 @@ export default function YourListingsPage() {
     setEditFields({ ...editFields, [e.target.name]: e.target.value });
   };
 
+  // Utility to format numbers with commas
+  function formatWithCommas(value: string) {
+    const raw = value.replace(/,/g, "");
+    if (!raw) return "";
+    return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  // Custom handler for price input with automatic commas
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove all non-digit characters except commas
+    let raw = e.target.value.replace(/[^\d]/g, "");
+    // Format with commas for display
+    const formatted = formatWithCommas(raw);
+    setEditFields({ ...editFields, price: formatted });
+  };
+
   const saveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedListing) return;
     setEditLoading(true);
     setEditError(null);
+    // Strip commas and convert to number
+    const priceNumber = Number((editFields.price || "").replace(/,/g, ""));
     const { error } = await supabase
       .from("listings")
       .update({
         title: editFields.title,
-        price: editFields.price,
+        price: priceNumber,
         description: editFields.description,
         location: editFields.location,
         category: editFields.category,
@@ -112,10 +130,16 @@ export default function YourListingsPage() {
       // Update local state
       setListings((prev) =>
         prev.map((l) =>
-          l.id === selectedListing.id ? { ...l, ...editFields } : l
+          l.id === selectedListing.id
+            ? { ...l, ...editFields, price: priceNumber.toLocaleString() }
+            : l
         )
       );
-      setSelectedListing((prev) => (prev ? { ...prev, ...editFields } : prev));
+      setSelectedListing((prev) =>
+        prev
+          ? { ...prev, ...editFields, price: priceNumber.toLocaleString() }
+          : prev
+      );
       setEditMode(false);
     }
   };
@@ -196,9 +220,10 @@ export default function YourListingsPage() {
                     required
                   />
                   <input
+                    type="text"
                     name="price"
                     value={editFields.price || ""}
-                    onChange={handleEditChange}
+                    onChange={handlePriceChange}
                     className="border border-border rounded p-2 w-full"
                     placeholder="Price"
                     required
