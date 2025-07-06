@@ -13,7 +13,17 @@ const Header: React.FC = () => {
         <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
           F
         </div>
-        <span className="font-bold text-lg">Marketplace</span>
+        <Link href="/" prefetch={false} legacyBehavior>
+          <a
+            className="font-bold text-lg cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = "/";
+            }}
+          >
+            Marketplace
+          </a>
+        </Link>
       </div>
       {/* Icons and User Menu */}
       <div className="flex items-center gap-6">
