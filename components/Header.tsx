@@ -1,8 +1,11 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import { useAuth } from "./AuthProvider";
 
 const Header: React.FC = () => {
+  const { user, signOut, loading } = useAuth();
+
   return (
     <header className="flex items-center justify-between h-16 px-8 border-b border-border bg-background">
       {/* Logo and app name */}
@@ -12,7 +15,7 @@ const Header: React.FC = () => {
         </div>
         <span className="font-bold text-lg">Marketplace</span>
       </div>
-      {/* Icons */}
+      {/* Icons and User Menu */}
       <div className="flex items-center gap-6">
         <Link href="/messages" aria-label="Messages">
           <button className="text-2xl" type="button">
@@ -24,11 +27,36 @@ const Header: React.FC = () => {
             🔔
           </button>
         </Link>
-        <Link href="/profile" aria-label="Profile">
-          <button className="text-2xl" type="button">
-            👤
-          </button>
-        </Link>
+        {/* User Menu */}
+        {!loading && user ? (
+          <div className="flex items-center gap-3">
+            <span
+              className="text-sm font-medium text-gray-700"
+              title={user.email}
+            >
+              {user.email}
+            </span>
+            <Link
+              href="/your-listings"
+              className="text-blue-600 hover:underline text-sm font-semibold"
+            >
+              Your Listings
+            </Link>
+            <button
+              onClick={signOut}
+              className="ml-2 text-sm bg-gray-200 hover:bg-gray-300 rounded px-3 py-1 font-semibold"
+            >
+              Log out
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="text-blue-600 hover:underline text-sm font-semibold"
+          >
+            Login/Signup
+          </Link>
+        )}
       </div>
     </header>
   );
