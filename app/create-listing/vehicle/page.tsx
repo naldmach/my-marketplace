@@ -1,16 +1,31 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function CreateVehiclePage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [makeModel, setMakeModel] = useState("");
   const [year, setYear] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Redirect to login if not logged in
+  if (!loading && !user) {
+    router.replace("/login");
+    return null;
+  }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onload = (ev) => {
         setImage(ev.target?.result as string);
@@ -19,12 +34,53 @@ export default function CreateVehiclePage() {
     }
   }
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    let image_url = null;
+    if (imageFile) {
+      const fileExt = imageFile.name.split(".").pop();
+      const fileName = `${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 8)}.${fileExt}`;
+      const { data, error: uploadError } = await supabase.storage
+        .from("listing-images")
+        .upload(fileName, imageFile);
+      if (uploadError) {
+        setError("Image upload failed: " + uploadError.message);
+        setSubmitting(false);
+        return;
+      }
+      const { data: publicUrlData } = supabase.storage
+        .from("listing-images")
+        .getPublicUrl(fileName);
+      image_url = publicUrlData.publicUrl;
+    }
+    const { error: insertError } = await supabase.from("listings").insert([
+      {
+        title: makeModel,
+        year,
+        price,
+        description,
+        image_url,
+        seller_email: user.email,
+      },
+    ]);
+    setSubmitting(false);
+    if (insertError) {
+      setError("Failed to create listing: " + insertError.message);
+    } else {
+      router.push("/your-listings");
+    }
+  }
+
   return (
     <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-50 min-h-screen">
       {/* Left: Form Card */}
       <div className="w-full max-w-sm bg-white rounded-lg border border-border p-6 flex flex-col gap-4 shadow-sm">
         <h1 className="text-2xl font-bold mb-4">Create Vehicle for Sale</h1>
-        <form className="flex flex-col gap-4">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
             type="file"
             accept="image/*"
@@ -37,6 +93,7 @@ export default function CreateVehiclePage() {
             className="border border-border rounded p-2 text-sm"
             value={makeModel}
             onChange={(e) => setMakeModel(e.target.value)}
+            required
           />
           <input
             type="text"
@@ -44,6 +101,7 @@ export default function CreateVehiclePage() {
             className="border border-border rounded p-2 text-sm"
             value={year}
             onChange={(e) => setYear(e.target.value)}
+            required
           />
           <input
             type="text"
@@ -51,6 +109,7 @@ export default function CreateVehiclePage() {
             className="border border-border rounded p-2 text-sm"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            required
           />
           <textarea
             placeholder="Description"
@@ -58,12 +117,15 @@ export default function CreateVehiclePage() {
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            required
           />
+          {error && <div className="text-red-600 text-sm">{error}</div>}
           <button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold w-full mt-2"
+            disabled={submitting}
           >
-            Create Listing
+            {submitting ? "Creating..." : "Create Listing"}
           </button>
         </form>
       </div>

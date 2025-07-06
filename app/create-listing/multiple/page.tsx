@@ -1,14 +1,29 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function CreateMultiplePage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [listings, setListings] = useState("");
   const [image, setImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const lines = listings.split("\n").filter(Boolean);
+
+  // Redirect to login if not logged in
+  if (!loading && !user) {
+    router.replace("/login");
+    return null;
+  }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onload = (ev) => {
         setImage(ev.target?.result as string);
@@ -17,12 +32,51 @@ export default function CreateMultiplePage() {
     }
   }
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    let image_url = null;
+    if (imageFile) {
+      const fileExt = imageFile.name.split(".").pop();
+      const fileName = `${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 8)}.${fileExt}`;
+      const { data, error: uploadError } = await supabase.storage
+        .from("listing-images")
+        .upload(fileName, imageFile);
+      if (uploadError) {
+        setError("Image upload failed: " + uploadError.message);
+        setSubmitting(false);
+        return;
+      }
+      const { data: publicUrlData } = supabase.storage
+        .from("listing-images")
+        .getPublicUrl(fileName);
+      image_url = publicUrlData.publicUrl;
+    }
+    const insertData = lines.map((line) => ({
+      title: line,
+      image_url,
+      seller_email: user.email,
+    }));
+    const { error: insertError } = await supabase
+      .from("listings")
+      .insert(insertData);
+    setSubmitting(false);
+    if (insertError) {
+      setError("Failed to create listings: " + insertError.message);
+    } else {
+      router.push("/your-listings");
+    }
+  }
+
   return (
     <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-50 min-h-screen">
       {/* Left: Form Card */}
       <div className="w-full max-w-sm bg-white rounded-lg border border-border p-6 flex flex-col gap-4 shadow-sm">
         <h1 className="text-2xl font-bold mb-4">Create Multiple Listings</h1>
-        <form className="flex flex-col gap-4">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
             type="file"
             accept="image/*"
@@ -35,12 +89,15 @@ export default function CreateMultiplePage() {
             rows={6}
             value={listings}
             onChange={(e) => setListings(e.target.value)}
+            required
           />
+          {error && <div className="text-red-600 text-sm">{error}</div>}
           <button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold w-full mt-2"
+            disabled={submitting}
           >
-            Create Listings
+            {submitting ? "Creating..." : "Create Listings"}
           </button>
         </form>
       </div>
