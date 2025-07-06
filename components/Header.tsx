@@ -50,12 +50,9 @@ const Header: React.FC = () => {
             </button>
           </div>
         ) : (
-          <Link
-            href="/login"
-            className="text-blue-600 hover:underline text-sm font-semibold"
-          >
-            Login/Signup
-          </Link>
+          <div className="text-sm text-gray-500">
+            Demo Mode - Seller Account
+          </div>
         )}
       </div>
     </header>

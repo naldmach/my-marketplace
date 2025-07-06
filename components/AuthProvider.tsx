@@ -1,14 +1,5 @@
 "use client";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
-import { supabase } from "../lib/supabaseClient";
-// If User type import fails, define a minimal fallback type:
-// type User = { email: string | null };
+import { createContext, useContext, useState, ReactNode } from "react";
 import type { User } from "@supabase/supabase-js";
 
 interface AuthContextType {
@@ -24,29 +15,27 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
+  const [user] = useState<User | null>({
+    id: "mock-user-id",
+    email: "seller@example.com",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    aud: "authenticated",
+    role: "authenticated",
+    email_confirmed_at: new Date().toISOString(),
+    phone: undefined,
+    confirmed_at: new Date().toISOString(),
+    last_sign_in_at: new Date().toISOString(),
+    app_metadata: {},
+    user_metadata: {},
+    identities: [],
+    factors: [],
+  } as User);
+  const [loading] = useState(false);
 
   async function signOut() {
-    await supabase.auth.signOut();
-    setUser(null);
+    // Mock signout - do nothing for now
+    console.log("Mock signout");
   }
 
   return (

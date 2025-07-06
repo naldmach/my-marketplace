@@ -5,11 +5,12 @@ import { useAuth } from "../../../components/AuthProvider";
 import { supabase } from "../../../lib/supabaseClient";
 
 export default function CreateHomePage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [address, setAddress] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("Palo Alto, CA");
   const [image, setImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,12 +26,6 @@ export default function CreateHomePage() {
     "Other",
   ];
   const [category, setCategory] = useState(categories[0]);
-
-  // Redirect to login if not logged in
-  if (!loading && !user) {
-    router.replace("/login");
-    return null;
-  }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -49,6 +44,7 @@ export default function CreateHomePage() {
     setError(null);
     setSubmitting(true);
     let image_url = null;
+
     if (imageFile) {
       const fileExt = imageFile.name.split(".").pop();
       const fileName = `${Date.now()}_${Math.random()
@@ -67,16 +63,27 @@ export default function CreateHomePage() {
         .getPublicUrl(fileName);
       image_url = publicUrlData.publicUrl;
     }
+
     if (!user) {
       setError("You must be logged in to create a listing.");
       setSubmitting(false);
       return;
     }
+
+    // Convert price to number for SQL DECIMAL field
+    const priceNumber = parseFloat(price);
+    if (isNaN(priceNumber)) {
+      setError("Please enter a valid price.");
+      setSubmitting(false);
+      return;
+    }
+
     const { error: insertError } = await supabase.from("listings").insert([
       {
         title: address,
-        price,
+        price: priceNumber,
         description,
+        location,
         image_url,
         seller_email: user.email,
         category,
@@ -118,6 +125,14 @@ export default function CreateHomePage() {
             className="border border-border rounded p-2 text-sm"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Location"
+            className="border border-border rounded p-2 text-sm"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
             required
           />
           <textarea

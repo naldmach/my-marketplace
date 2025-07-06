@@ -5,12 +5,12 @@ import { useAuth } from "../../../components/AuthProvider";
 import { supabase } from "../../../lib/supabaseClient";
 
 export default function CreateVehiclePage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [makeModel, setMakeModel] = useState("");
-  const [year, setYear] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("Palo Alto, CA");
   const [image, setImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,12 +25,6 @@ export default function CreateVehiclePage() {
     "Other",
   ];
   const [category, setCategory] = useState(categories[0]);
-
-  // Redirect to login if not logged in
-  if (!loading && !user) {
-    router.replace("/login");
-    return null;
-  }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -49,6 +43,7 @@ export default function CreateVehiclePage() {
     setError(null);
     setSubmitting(true);
     let image_url = null;
+
     if (imageFile) {
       const fileExt = imageFile.name.split(".").pop();
       const fileName = `${Date.now()}_${Math.random()
@@ -67,17 +62,27 @@ export default function CreateVehiclePage() {
         .getPublicUrl(fileName);
       image_url = publicUrlData.publicUrl;
     }
+
     if (!user) {
       setError("You must be logged in to create a listing.");
       setSubmitting(false);
       return;
     }
+
+    // Convert price to number for SQL DECIMAL field
+    const priceNumber = parseFloat(price);
+    if (isNaN(priceNumber)) {
+      setError("Please enter a valid price.");
+      setSubmitting(false);
+      return;
+    }
+
     const { error: insertError } = await supabase.from("listings").insert([
       {
         title: makeModel,
-        year,
-        price,
+        price: priceNumber,
         description,
+        location,
         image_url,
         seller_email: user.email,
         category,
@@ -113,14 +118,6 @@ export default function CreateVehiclePage() {
           />
           <input
             type="text"
-            placeholder="Year"
-            className="border border-border rounded p-2 text-sm"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            required
-          />
-          <input
-            type="text"
             placeholder="Price"
             className="border border-border rounded p-2 text-sm"
             value={price}
@@ -145,6 +142,14 @@ export default function CreateVehiclePage() {
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Location"
+            className="border border-border rounded p-2 text-sm"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
             required
           />
           {error && <div className="text-red-600 text-sm">{error}</div>}
@@ -174,7 +179,6 @@ export default function CreateVehiclePage() {
           <div className="font-bold text-xl mb-1">
             {makeModel || "Make & Model"}
           </div>
-          <div className="text-lg font-semibold mb-1">{year || "Year"}</div>
           <div className="text-lg font-semibold mb-1">
             {price ? `$${price}` : "Price"}
           </div>

@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/AuthProvider";
 import { supabase } from "../../lib/supabaseClient";
 
@@ -14,15 +13,8 @@ interface Listing {
 
 export default function YourListingsPage() {
   const { user, loading } = useAuth();
-  const router = useRouter();
   const [listings, setListings] = useState<Listing[]>([]);
   const [fetching, setFetching] = useState(false);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
-    }
-  }, [user, loading, router]);
 
   useEffect(() => {
     if (user) {
@@ -41,10 +33,6 @@ export default function YourListingsPage() {
 
   if (loading || (user && fetching)) {
     return <div className="p-8 text-center">Loading...</div>;
-  }
-
-  if (!user) {
-    return null;
   }
 
   return (
