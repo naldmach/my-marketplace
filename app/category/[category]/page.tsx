@@ -1,4 +1,4 @@
-import MarketplaceGrid from "@/components/MarketplaceGrid";
+import MarketplaceGrid from "../../../components/MarketplaceGrid";
 
 export default async function CategoryPage({
   params,
