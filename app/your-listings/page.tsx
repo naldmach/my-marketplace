@@ -21,6 +21,10 @@ export default function YourListingsPage() {
   const [fetching, setFetching] = useState(false);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editFields, setEditFields] = useState<any>({});
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -69,6 +73,50 @@ export default function YourListingsPage() {
   const handleModalClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       closeModal();
+    }
+  };
+
+  const startEdit = () => {
+    setEditFields(selectedListing);
+    setEditMode(true);
+    setEditError(null);
+  };
+
+  const handleEditChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setEditFields({ ...editFields, [e.target.name]: e.target.value });
+  };
+
+  const saveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedListing) return;
+    setEditLoading(true);
+    setEditError(null);
+    const { error } = await supabase
+      .from("listings")
+      .update({
+        title: editFields.title,
+        price: editFields.price,
+        description: editFields.description,
+        location: editFields.location,
+        category: editFields.category,
+      })
+      .eq("id", selectedListing.id);
+    setEditLoading(false);
+    if (error) {
+      setEditError(error.message);
+    } else {
+      // Update local state
+      setListings((prev) =>
+        prev.map((l) =>
+          l.id === selectedListing.id ? { ...l, ...editFields } : l
+        )
+      );
+      setSelectedListing((prev) => (prev ? { ...prev, ...editFields } : prev));
+      setEditMode(false);
     }
   };
 
@@ -126,7 +174,9 @@ export default function YourListingsPage() {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold">{selectedListing.title}</h2>
+                <h2 className="text-2xl font-bold">
+                  {editMode ? "Edit Listing" : selectedListing.title}
+                </h2>
                 <button
                   onClick={closeModal}
                   className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
@@ -135,77 +185,150 @@ export default function YourListingsPage() {
                 </button>
               </div>
 
-              <div className="w-full h-64 bg-gray-100 rounded mb-4 overflow-hidden flex items-center justify-center relative">
-                {selectedListing.image_url ? (
-                  <Image
-                    src={selectedListing.image_url}
-                    alt={selectedListing.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 768px"
-                    priority={true}
+              {editMode ? (
+                <form onSubmit={saveEdit} className="space-y-4">
+                  <input
+                    name="title"
+                    value={editFields.title || ""}
+                    onChange={handleEditChange}
+                    className="border border-border rounded p-2 w-full"
+                    placeholder="Title"
+                    required
                   />
-                ) : (
-                  <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#d1d5db_0_2px,transparent_2px,transparent_8px)] rounded" />
-                )}
-              </div>
+                  <input
+                    name="price"
+                    value={editFields.price || ""}
+                    onChange={handleEditChange}
+                    className="border border-border rounded p-2 w-full"
+                    placeholder="Price"
+                    required
+                  />
+                  <input
+                    name="location"
+                    value={editFields.location || ""}
+                    onChange={handleEditChange}
+                    className="border border-border rounded p-2 w-full"
+                    placeholder="Location"
+                    required
+                  />
+                  <select
+                    name="category"
+                    value={editFields.category || ""}
+                    onChange={handleEditChange}
+                    className="border border-border rounded p-2 w-full"
+                    required
+                  >
+                    <option value="">Select category</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Home & Garden">Home & Garden</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Vehicles">Vehicles</option>
+                    <option value="Books">Books</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <textarea
+                    name="description"
+                    value={editFields.description || ""}
+                    onChange={handleEditChange}
+                    className="border border-border rounded p-2 w-full"
+                    placeholder="Description"
+                    rows={3}
+                    required
+                  />
+                  {editError && (
+                    <div className="text-red-600 text-sm">{editError}</div>
+                  )}
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <button
+                      type="button"
+                      onClick={() => setEditMode(false)}
+                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded font-semibold"
+                      disabled={editLoading}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold"
+                      disabled={editLoading}
+                    >
+                      {editLoading ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div className="w-full h-64 bg-gray-100 rounded mb-4 overflow-hidden flex items-center justify-center relative">
+                    {selectedListing.image_url ? (
+                      <Image
+                        src={selectedListing.image_url}
+                        alt={selectedListing.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 768px"
+                        priority={true}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#d1d5db_0_2px,transparent_2px,transparent_8px)] rounded" />
+                    )}
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <div className="text-lg font-semibold text-blue-600 mb-1">
-                    {selectedListing.price
-                      ? `$${selectedListing.price}`
-                      : "Price not set"}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <div className="text-lg font-semibold text-blue-600 mb-1">
+                        {selectedListing.price
+                          ? `$${selectedListing.price}`
+                          : "Price not set"}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <strong>Category:</strong>{" "}
+                        {selectedListing.category || "Not specified"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-600">
+                        <strong>Location:</strong>{" "}
+                        {selectedListing.location || "Not specified"}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <strong>Listed:</strong>{" "}
+                        {selectedListing.created_at
+                          ? new Date(
+                              selectedListing.created_at
+                            ).toLocaleDateString()
+                          : "Unknown"}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600">
-                    <strong>Category:</strong>{" "}
-                    {selectedListing.category || "Not specified"}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">
-                    <strong>Location:</strong>{" "}
-                    {selectedListing.location || "Not specified"}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    <strong>Listed:</strong>{" "}
-                    {selectedListing.created_at
-                      ? new Date(
-                          selectedListing.created_at
-                        ).toLocaleDateString()
-                      : "Unknown"}
-                  </div>
-                </div>
-              </div>
 
-              {selectedListing.description && (
-                <div className="mb-4">
-                  <div className="font-semibold text-gray-800 mb-2">
-                    Description
+                  {selectedListing.description && (
+                    <div className="mb-4">
+                      <div className="font-semibold text-gray-800 mb-2">
+                        Description
+                      </div>
+                      <div className="text-gray-600 whitespace-pre-wrap">
+                        {selectedListing.description}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <button
+                      onClick={closeModal}
+                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded font-semibold"
+                    >
+                      Close
+                    </button>
+                    <button
+                      onClick={startEdit}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold"
+                    >
+                      Edit Listing
+                    </button>
                   </div>
-                  <div className="text-gray-600 whitespace-pre-wrap">
-                    {selectedListing.description}
-                  </div>
-                </div>
+                </>
               )}
-
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded font-semibold"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() => {
-                    // TODO: Add edit functionality
-                    console.log("Edit listing:", selectedListing.id);
-                  }}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold"
-                >
-                  Edit Listing
-                </button>
-              </div>
             </div>
           </div>
         </div>
