@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "../../../components/AuthProvider";
 import { supabase } from "../../../lib/supabaseClient";
 
@@ -165,12 +166,15 @@ export default function CreateItemPage() {
       {/* Right: Preview Card */}
       <div className="flex-1 flex flex-col items-center">
         <div className="w-full max-w-2xl bg-white rounded-lg border border-border p-6 flex flex-col gap-4 shadow-sm">
-          <div className="w-full h-64 bg-blue-100 rounded mb-4 flex items-center justify-center border border-blue-200 overflow-hidden">
+          <div className="w-full h-64 bg-blue-100 rounded mb-4 flex items-center justify-center border border-blue-200 overflow-hidden relative">
             {image ? (
-              <img
+              <Image
                 src={image}
                 alt="Preview"
-                className="object-cover w-full h-full"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 768px"
+                priority={false}
               />
             ) : (
               <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#60a5fa_0_2px,transparent_2px,transparent_8px)] rounded" />

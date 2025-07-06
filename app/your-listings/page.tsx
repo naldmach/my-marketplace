@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useAuth } from "../../components/AuthProvider";
 import { supabase } from "../../lib/supabaseClient";
 
@@ -90,12 +91,15 @@ export default function YourListingsPage() {
               className="bg-white rounded-lg border border-border shadow-sm p-4 flex flex-col cursor-pointer hover:shadow-md transition-shadow"
               onClick={() => handleListingClick(listing)}
             >
-              <div className="w-full aspect-square bg-gray-100 rounded mb-3 overflow-hidden flex items-center justify-center">
+              <div className="w-full aspect-square bg-gray-100 rounded mb-3 overflow-hidden flex items-center justify-center relative">
                 {listing.image_url ? (
-                  <img
+                  <Image
                     src={listing.image_url}
                     alt={listing.title}
-                    className="object-cover w-full h-full"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    priority={false}
                   />
                 ) : (
                   <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#d1d5db_0_2px,transparent_2px,transparent_8px)] rounded" />
@@ -131,12 +135,15 @@ export default function YourListingsPage() {
                 </button>
               </div>
 
-              <div className="w-full h-64 bg-gray-100 rounded mb-4 overflow-hidden flex items-center justify-center">
+              <div className="w-full h-64 bg-gray-100 rounded mb-4 overflow-hidden flex items-center justify-center relative">
                 {selectedListing.image_url ? (
-                  <img
+                  <Image
                     src={selectedListing.image_url}
                     alt={selectedListing.title}
-                    className="object-cover w-full h-full"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 768px"
+                    priority={true}
                   />
                 ) : (
                   <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#d1d5db_0_2px,transparent_2px,transparent_8px)] rounded" />

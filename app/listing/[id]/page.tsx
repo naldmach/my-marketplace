@@ -1,4 +1,5 @@
 import { supabase } from "../../../lib/supabaseClient";
+import Image from "next/image";
 
 export default async function ListingDetailPage({
   params,
@@ -6,52 +7,64 @@ export default async function ListingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { data: listing, error } = await supabase
+  const { data: listing } = await supabase
     .from("listings")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (error || !listing) {
-    return <div className="p-8 text-center text-xl">Listing not found.</div>;
+  if (!listing) {
+    return <div className="p-8 text-center">Listing not found.</div>;
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-50 min-h-screen">
-      {/* Left: Large Image Card */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-full max-w-2xl aspect-square bg-white rounded-lg border border-border flex items-center justify-center shadow-sm overflow-hidden">
+    <div className="max-w-4xl mx-auto p-8">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+        <div className="w-full h-96 bg-gray-100 relative">
           {listing.image_url ? (
-            <img
+            <Image
               src={listing.image_url}
               alt={listing.title}
-              className="w-full h-full object-cover rounded"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 1200px"
+              priority={true}
             />
           ) : (
-            <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#60a5fa_0_2px,transparent_2px,transparent_8px)] rounded" />
+            <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#d1d5db_0_2px,transparent_2px,transparent_8px)] flex items-center justify-center">
+              <span className="text-gray-500">No image available</span>
+            </div>
           )}
         </div>
-      </div>
-      {/* Right: Details Card */}
-      <div className="w-full max-w-md bg-white rounded-lg border border-border p-6 flex flex-col gap-4 shadow-sm">
-        <div className="font-bold text-2xl mb-1">{listing.title}</div>
-        <div className="text-xl font-bold mb-2">{listing.price}</div>
-        <div className="text-xs text-muted-foreground mb-2">
-          Listed 1 hour ago
-          <br />
-          in {listing.location}
+        <div className="p-6">
+          <h1 className="text-3xl font-bold mb-2">{listing.title}</h1>
+          <div className="text-2xl font-semibold text-blue-600 mb-4">
+            ${listing.price}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <strong>Category:</strong> {listing.category}
+            </div>
+            <div>
+              <strong>Location:</strong> {listing.location || "Not specified"}
+            </div>
+            <div>
+              <strong>Listed:</strong>{" "}
+              {new Date(listing.created_at).toLocaleDateString()}
+            </div>
+            <div>
+              <strong>Seller:</strong> {listing.seller_email}
+            </div>
+          </div>
+          {listing.description && (
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Description</h2>
+              <p className="text-gray-700 whitespace-pre-wrap">
+                {listing.description}
+              </p>
+            </div>
+          )}
         </div>
-        <div className="font-bold text-sm mb-1">Seller Information</div>
-        <div className="text-sm mb-4">{listing.seller_email}</div>
-        <div className="font-semibold mb-2">Send seller a message</div>
-        <textarea
-          className="w-full border border-border rounded p-2 mb-2 text-sm"
-          rows={3}
-          placeholder="I want to buy your bike!"
-        />
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold w-full">
-          Send
-        </button>
       </div>
     </div>
   );

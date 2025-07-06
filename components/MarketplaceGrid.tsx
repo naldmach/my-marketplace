@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -47,12 +48,15 @@ const MarketplaceGrid: React.FC = () => {
           href={`/listing/${listing.id}`}
           className="bg-white rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden"
         >
-          <div className="w-full aspect-[4/3] bg-blue-100 flex items-center justify-center border-b border-border">
+          <div className="w-full aspect-[4/3] bg-blue-100 flex items-center justify-center border-b border-border relative">
             {listing.image_url ? (
-              <img
+              <Image
                 src={listing.image_url}
                 alt={listing.title}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                priority={false}
               />
             ) : (
               <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#60a5fa_0_2px,transparent_2px,transparent_8px)]" />

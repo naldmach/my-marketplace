@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "../../../components/AuthProvider";
 import { supabase } from "../../../lib/supabaseClient";
 
@@ -177,12 +178,15 @@ export default function CreateMultiplePage() {
                   key={idx}
                   className="border border-blue-200 rounded p-3 bg-blue-50 flex items-center gap-4"
                 >
-                  <div className="w-16 h-16 bg-blue-100 rounded flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 bg-blue-100 rounded flex items-center justify-center overflow-hidden relative">
                     {image ? (
-                      <img
+                      <Image
                         src={image}
                         alt="Preview"
-                        className="object-cover w-full h-full"
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                        priority={false}
                       />
                     ) : (
                       <div className="w-full h-full bg-[repeating-linear-gradient(135deg,#60a5fa_0_2px,transparent_2px,transparent_8px)] rounded" />
